@@ -11,9 +11,9 @@
 @*#if  (!NoAuth && Hosted)
 @attribute [Authorize]
 #endif*@
-@*#if  (NoAuth || !Hosted)
+#if  (NoAuth || !Hosted)
 @inject HttpClient Http
-#endif*@
+#endif
 
 <h1>Weather forecast</h1>
 
@@ -53,8 +53,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        @*#if (Hosted)
-            @*#if (!NoAuth)
+        #if (Hosted)
+            #if (!NoAuth)
         var httpClient = new HttpClient();
         httpClient.BaseAddress = new Uri(Navigation.BaseUri);
 
@@ -71,14 +71,14 @@ else
         }
 
             #else
-        forecasts = await Http.GetJsonAsync<WeatherForecast[]>("WeatherForecast");
-            #endif*@
+        forecasts = await Http.GetJsonAsync<WeatherForecast[]>("WeatherForecast"); 
+        #endif
         #else
         forecasts = await Http.GetJsonAsync<WeatherForecast[]>("sample-data/weather.json");
-        #endif*@
+        #endif
     }
 
-    @*#if (!Hosted)
+    #if (!Hosted)
     public class WeatherForecast
     {
         public DateTime Date { get; set; }
@@ -89,5 +89,5 @@ else
 
         public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
     }
-    #endif*@
+    #endif
 }
