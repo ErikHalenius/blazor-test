@@ -1,15 +1,9 @@
 ﻿@using System.Net.Http
-@*#if (!NoAuth)
-@using Microsoft.AspNetCore.Components.Authorization
-#endif*@
+@using System.Net.Http.Json
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.WebAssembly.Http
 @using Microsoft.JSInterop
-@*#if (!Hosted)
 @using blazor_test
 @using blazor_test.Shared
-#else
-@using blazor_test.Client
-@using blazor_test.Client.Shared
-#endif*@
