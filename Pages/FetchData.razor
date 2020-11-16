@@ -29,6 +29,7 @@ else
                     <td>@forecast.TemperatureC</td>
                     <td>@forecast.TemperatureF</td>
                     <td>@forecast.Summary</td>
+                    <td><button @onclick="@(() => {RemoveTemperatureReading(forecast);})">Remove</button></td>
                 </tr>
             }
             <tr>
@@ -41,7 +42,7 @@ else
                 <td>
                     <input @bind="userSummary" required /> Summary
                 </td>
-                <td><button @onclick="SaveChanges">Save inputs</button></td>
+                <td><button @onclick="AddTemperatureReading">Save inputs</button></td>
             </tr>
         </tbody>
     </table>
@@ -49,7 +50,7 @@ else
 }
 
 @code {
-    private WeatherForecast[] forecasts;
+    private List<WeatherForecast> forecasts;
     private DateTime userDate;
     private int userTemperatureC;
     private int userTemperatureF => 32 + (int)(userTemperatureC / 0.5556);
@@ -57,7 +58,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+        forecasts = (await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json")).ToList();
     }
 
     public class WeatherForecast
@@ -102,7 +103,7 @@ Data = forecasts.Select(f => f.TemperatureF)
 
     }
 
-    private void SaveChanges()
+    private void AddTemperatureReading()
     {
         var newForcast = new WeatherForecast
         {
@@ -111,12 +112,16 @@ Data = forecasts.Select(f => f.TemperatureF)
             TemperatureC = userTemperatureC
         };
 
-        var temp = forecasts.ToList();
-        temp.Add(newForcast);
-        forecasts = temp.ToArray();
+        forecasts.Add(newForcast);
 
         userDate = DateTime.Now;
         userSummary = "";
         userTemperatureC = 0;
     }
+
+    private void RemoveTemperatureReading(WeatherForecast item)
+    {
+        forecasts.Remove(item);
+    }
+
 }
