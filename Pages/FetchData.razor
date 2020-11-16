@@ -31,6 +31,18 @@ else
                     <td>@forecast.Summary</td>
                 </tr>
             }
+            <tr>
+                <td>
+                    <input @bind="userDate" required /> Date for registration
+                </td>
+                <td>
+                    <input @bind="userTemperatureC" required /> Temp in Celsius
+                </td>
+                <td>
+                    <input @bind="userSummary" required /> Summary
+                </td>
+                <td><button @onclick="SaveChanges">Save inputs</button></td>
+            </tr>
         </tbody>
     </table>
     <canvas id="graph-canvas-1"></canvas>
@@ -38,6 +50,10 @@ else
 
 @code {
     private WeatherForecast[] forecasts;
+    private DateTime userDate;
+    private int userTemperatureC;
+    private int userTemperatureF => 32 + (int)(userTemperatureC / 0.5556);
+    private string userSummary;
 
     protected override async Task OnInitializedAsync()
     {
@@ -67,22 +83,40 @@ else
                     Labels = forecasts.Select(f => f.Date.ToShortDateString()),
                     Datasets = new[]
                     {new {
-                label = "Temperatures (Celcius)",
+                label = "Temperatures (Celsius)",
                 backgroundColor = "rgb(252, 226, 5)",
                 borderColor = "rgb(204, 119, 34)",
                 Data = forecasts.Select(f => f.TemperatureC)
             },
                         new {
-                label = "Temperatures (Fahrenheit)",
-                backgroundColor = "rgb(11, 102, 35)",
-                borderColor = "rgb(0, 78, 56)",
-                Data = forecasts.Select(f => f.TemperatureF)
-                }
+label = "Temperatures (Fahrenheit)",
+backgroundColor = "rgb(11, 102, 35)",
+borderColor = "rgb(0, 78, 56)",
+Data = forecasts.Select(f => f.TemperatureF)
+}
                     }
                 }
             };
             await JS.InvokeAsync<string>("CreateGraph", "graph-canvas-1", chart);
         }
 
+    }
+
+    private void SaveChanges()
+    {
+        var newForcast = new WeatherForecast
+        {
+            Date = userDate,
+            Summary = userSummary,
+            TemperatureC = userTemperatureC
+        };
+
+        var temp = forecasts.ToList();
+        temp.Add(newForcast);
+        forecasts = temp.ToArray();
+
+        userDate = DateTime.Now;
+        userSummary = "";
+        userTemperatureC = 0;
     }
 }
