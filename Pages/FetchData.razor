@@ -123,8 +123,9 @@ Data = forecasts.Select(f => f.TemperatureF)
         var forecast = editContext.Model as WeatherForecast;
         if (forecast != null)
         {
-            forecasts.Add(forecast);            
+            forecasts.Add(forecast);
         }
+        userInputForecast = new WeatherForecast();
 
     }
 
