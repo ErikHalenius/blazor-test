@@ -1,4 +1,5 @@
 @page "/fetchdata"
+@using System.ComponentModel.DataAnnotations
 @inject HttpClient Http
 @inject IJSRuntime JS;
 
@@ -29,27 +30,49 @@ else
                     <td>@forecast.TemperatureC</td>
                     <td>@forecast.TemperatureF</td>
                     <td>@forecast.Summary</td>
+                    <td><button @onclick="@(() => {RemoveTemperatureReading(forecast);})">Remove</button></td>
                 </tr>
             }
+
         </tbody>
     </table>
+    <EditForm Model="userInputForecast" OnValidSubmit="@AddTemperatureReading">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <ul>
+            <li>
+                <InputDate @bind-Value="userInputForecast.Date" required /> Date for registration
+            </li>
+            <li>
+                <InputNumber @bind-Value="userInputForecast.TemperatureC" required /> Temp in Celsius
+            </li>
+            <li>
+                <InputText id="name" @bind-Value="userInputForecast.Summary" /> Summary
+            </li>
+            <li><button type="submit">Save inputs</button></li>
+        </ul>
+        <button type="submit">Submit</button>
+    </EditForm>
     <canvas id="graph-canvas-1"></canvas>
 }
 
 @code {
-    private WeatherForecast[] forecasts;
-
+    private List<WeatherForecast> forecasts;
+    private WeatherForecast userInputForecast = new WeatherForecast();
+    private EditContext editContext;
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+        forecasts = (await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json")).ToList();
+        editContext = new EditContext(userInputForecast);
     }
 
     public class WeatherForecast
     {
+
         public DateTime Date { get; set; }
 
         public int TemperatureC { get; set; }
-
+        [Required(ErrorMessage = "Summary is required")]
         public string Summary { get; set; }
 
         public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
@@ -66,18 +89,21 @@ else
                 {
                     Labels = forecasts.Select(f => f.Date.ToShortDateString()),
                     Datasets = new[]
-                    {new {
-                label = "Temperatures (Celcius)",
-                backgroundColor = "rgb(252, 226, 5)",
-                borderColor = "rgb(204, 119, 34)",
-                Data = forecasts.Select(f => f.TemperatureC)
-            },
-                        new {
-                label = "Temperatures (Fahrenheit)",
-                backgroundColor = "rgb(11, 102, 35)",
-                borderColor = "rgb(0, 78, 56)",
-                Data = forecasts.Select(f => f.TemperatureF)
-                }
+                    {
+                        new
+{
+label = "Temperatures (Celsius)",
+backgroundColor = "rgb(252, 226, 5)",
+borderColor = "rgb(204, 119, 34)",
+Data = forecasts.Select(f => f.TemperatureC)
+},
+                        new
+{
+label = "Temperatures (Fahrenheit)",
+backgroundColor = "rgb(11, 102, 35)",
+borderColor = "rgb(0, 78, 56)",
+Data = forecasts.Select(f => f.TemperatureF)
+}
                     }
                 }
             };
@@ -85,4 +111,27 @@ else
         }
 
     }
+
+    private void AddTemperatureReading()
+    {
+
+        if (!editContext.Validate())
+        {
+            return;
+        }
+
+        var forecast = editContext.Model as WeatherForecast;
+        if (forecast != null)
+        {
+            forecasts.Add(forecast);
+        }
+        userInputForecast = new WeatherForecast();
+
+    }
+
+    private void RemoveTemperatureReading(WeatherForecast item)
+    {
+        forecasts.Remove(item);
+    }
+
 }
