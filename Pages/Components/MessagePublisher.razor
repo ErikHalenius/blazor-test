@@ -1,0 +1,23 @@
+@inject MyMessage MyMessage
+<div>
+    <label>Skriv en hälsning</label>
+    <input type="text" @bind="UserInput"></input>
+    <button @onclick="Publish">Skicka meddelande</button>
+</div>
+
+
+@code {
+
+   public string UserInput { get; set; }
+
+   protected override void OnInitialized()
+        {
+            MyMessage.OnChange += StateHasChanged;
+        }
+    
+    private void Publish(){
+        MyMessage.SetText(UserInput);
+    }
+}
+
+      
