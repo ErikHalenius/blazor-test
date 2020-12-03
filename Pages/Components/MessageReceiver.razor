@@ -1,4 +1,16 @@
 @inject MyMessage MyMessage
 
 
-<div><p>@MyMessage.Text</p></div>
+<div>
+    @if (!string.IsNullOrWhiteSpace(MyMessage.Text))
+    {
+        <p>Message received: @MyMessage.Text</p>
+    }
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        MyMessage.OnChange += StateHasChanged;
+    }
+}
